@@ -1,0 +1,36 @@
+{
+    "author": "Raadad Elsleiman <raadad@gmail.com> (http://elsleiman.com)",
+    "contributors": [
+        "drew-walker"
+    ],
+    "name": "Din",
+    "description": "Razor thin and unobtrusive dependency injection",
+    "tags": [
+        "dependency",
+        "require",
+        "injection",
+        "di",
+        "loader",
+        "module"
+    ],
+    "version": "0.0.1",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/raadad/node-din.git"
+    },
+    "bugs": {
+        "url": "https://github.com/raadad/node-din/issues"
+    },
+    "main": "din.js",
+    "scripts": {
+        "test": "mocha"
+    },
+    "engines": {
+        "node": "*"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "mocha": "~ 1.4.2"
+    },
+    "optionalDependencies": {}
+}

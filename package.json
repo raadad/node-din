@@ -3,7 +3,7 @@
     "contributors": [
         "drew-walker"
     ],
-    "name": "Din",
+    "name": "din",
     "description": "Razor thin and unobtrusive dependency injection",
     "tags": [
         "dependency",

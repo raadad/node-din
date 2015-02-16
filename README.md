@@ -15,13 +15,14 @@ Din is constructed with a config, which is used to specify what dependencies eac
 The following example shows how to load multiple dependencies in many supported usage scenarios.
 
 #### Example module - lib/testModule.js
+```javscript
         module.exports =  function(normalModule, computed, inlineFunction, string, number) {
             console.log(arguments);
         }
-
+```
 
 #### App module wiring config - wiring.js
-
+```javscript
     module.exports = {
         baseDir : __dirname, //alternative to relative path names
         graph : {
@@ -37,7 +38,7 @@ The following example shows how to load multiple dependencies in many supported 
                     }
                 ]
             },
-            'lib/anotherTestModule' :{  // modules dont require loojup if their keys match an actual file
+            'lib/anotherTestModule' :{  // modules dont require lookup if their keys match an actual file
                 deps:['n:fs'] }
         },
         evals: {
@@ -45,13 +46,13 @@ The following example shows how to load multiple dependencies in many supported 
             // will return a reference to readFileSync as a Dependency
         }
 };
-
+```
 #### Load DI - app.js
-
+```javscript
     var Din = require('../din'),
     appWiring = require('./wiring'), // config
     din = Din(appWiring),
 
     modulea = din.load('modulea');
-
+```
 

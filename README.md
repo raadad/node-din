@@ -16,14 +16,14 @@ The following example shows how to load multiple dependencies in many supported 
 
 #### Example module - lib/testModule.js
 ```javscript
-        module.exports =  function(normalModule, computed, inlineFunction, string, number) {
-            console.log(arguments);
-        }
+module.exports =  function(normalModule, computed, inlineFunction, string, number) {
+        console.log(arguments);
+}
 ```
 
 #### App module wiring config - wiring.js
 ```javscript
-    module.exports = {
+module.exports = {
         baseDir : __dirname, //alternative to relative path names
         graph : {
             'modulea' :{  // key used to load module
@@ -49,10 +49,10 @@ The following example shows how to load multiple dependencies in many supported 
 ```
 #### Load DI - app.js
 ```javscript
-    var Din = require('../din'),
-    appWiring = require('./wiring'), // config
-    din = Din(appWiring),
+var Din = require('../din'),
+appWiring = require('./wiring'), // config
+din = Din(appWiring),
 
-    modulea = din.load('modulea');
+modulea = din.load('modulea');
 ```
 

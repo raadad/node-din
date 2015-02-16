@@ -2,7 +2,9 @@
 Razor thin Dependency Injection for node.js
 
 ### Why?
-This library helps you achieve and enforce true inversion of control of your modules, using require - to load modules directly makes it difficult to control what dependencies your modules use , when it comes time for testing, or swapping out implementations of dependencies, it becomes difficult without having to change the module internally or hack the require cache.
+This library helps you achieve and enforce true inversion of control of your modules.
+
+Using require to load modules directly makes it difficult to control what dependencies your modules use and when it comes time for testing or swapping out implementations of dependencies, it becomes difficult without having to change the module internally or hack the require cache.
 
 This library aims to be as thin as possible as well as completley unobtrusive to the modules themselevs, as opposed to most DI libraries which require modules are written in a specific way or depend on a global variable such as 'define'.
 

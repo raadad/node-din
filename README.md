@@ -2,7 +2,9 @@
 Razor thin Dependency Injection for node.js
 
 ### Why?
-This library helps you achieve and enforce true inversion of control of your modules, using require - to load modules directly makes it difficult to control what dependencies your modules use , when it comes time for testing, or swapping out implementations of dependencies, it becomes difficult without having to change the module internally or hack the require cache.
+This library helps you achieve and enforce true inversion of control of your modules.
+
+Using require to load modules directly makes it difficult to control what dependencies your modules use and when it comes time for testing or swapping out implementations of dependencies, it becomes difficult without having to change the module internally or hack the require cache.
 
 This library aims to be as thin as possible as well as completley unobtrusive to the modules themselevs, as opposed to most DI libraries which require modules are written in a specific way or depend on a global variable such as 'define'.
 
@@ -13,14 +15,15 @@ Din is constructed with a config, which is used to specify what dependencies eac
 The following example shows how to load multiple dependencies in many supported usage scenarios.
 
 #### Example module - lib/testModule.js
-        module.exports =  function(normalModule, computed, inlineFunction, string, number) {
-            console.log(arguments);
-        }
-
+```javscript
+module.exports =  function(normalModule, computed, inlineFunction, string, number) {
+        console.log(arguments);
+}
+```
 
 #### App module wiring config - wiring.js
-
-    module.exports = {
+```javscript
+module.exports = {
         baseDir : __dirname, //alternative to relative path names
         graph : {
             'modulea' :{  // key used to load module
@@ -35,7 +38,7 @@ The following example shows how to load multiple dependencies in many supported 
                     }
                 ]
             },
-            'lib/anotherTestModule' :{  // modules dont require loojup if their keys match an actual file
+            'lib/anotherTestModule' :{  // modules dont require lookup if their keys match an actual file
                 deps:['n:fs'] }
         },
         evals: {
@@ -43,13 +46,13 @@ The following example shows how to load multiple dependencies in many supported 
             // will return a reference to readFileSync as a Dependency
         }
 };
-
+```
 #### Load DI - app.js
+```javscript
+var Din = require('../din'),
+appWiring = require('./wiring'), // config
+din = Din(appWiring),
 
-    var Din = require('../din'),
-    appWiring = require('./wiring'), // config
-    din = Din(appWiring),
-
-    modulea = din.load('modulea');
-
+modulea = din.load('modulea');
+```
 

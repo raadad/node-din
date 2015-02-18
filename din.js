@@ -1,6 +1,8 @@
 module.exports = function(config) {
+
     var self = this,
     prefixDir = config.baseDir ? config.baseDir : process.cwd(),
+
 
     loader = {};
     loader['x'] = function(name) { return require(name); };
@@ -9,11 +11,15 @@ module.exports = function(config) {
     loader['s'] = function(name) { return name; };
     loader['j'] = function(name) { return config.evals[name](); };
 
+    if(!config.singletons) config.singletons = {};
+
     self.load = function load(alias) {
         var moduleDescriptor = config.graph[alias];
         if (!moduleDescriptor) throw new Error('alias: ' + alias + ' not specified in configuration');
 
-        var dependencies = config.graph[alias].deps.map(function(item) {
+        if (config.singletons[alias]) return config.singletons[alias]
+
+        var dependencies = moduleDescriptor.deps.map(function(item) {
             if (typeof item !== "string") return item;
             var dependencyParts = item.split(':'),
             dependencyType = dependencyParts[0],
@@ -24,8 +30,10 @@ module.exports = function(config) {
         }),
 
         path = moduleDescriptor.lookup ? moduleDescriptor.lookup : alias;
+        var module = require(process.cwd() + '/' + path).apply(null, dependencies);
+        if(moduleDescriptor.singleton) config.singletons[alias] = module;
 
-        return require(process.cwd() + '/' + path).apply(null, dependencies);
+        return module;
     };
 
     return self;

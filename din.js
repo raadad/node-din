@@ -1,41 +1,42 @@
 module.exports = function(config) {
+    return new function() {
+        var self = this,
+        prefixDir = config.baseDir ? config.baseDir : process.cwd(),
 
-    var self = this,
-    prefixDir = config.baseDir ? config.baseDir : process.cwd(),
+        loader = {};
+        loader['x'] = function(name) { return require(name); };
+        loader['n'] = function(name) { return require(name); };
+        loader['d'] = function(name) { return self.load(name); };
+        loader['s'] = function(name) { return name; };
+        loader['j'] = function(name) { return config.evals[name](); };
 
+        if(!config.singletons) config.singletons = {};
+        self.config = config;
 
-    loader = {};
-    loader['x'] = function(name) { return require(name); };
-    loader['n'] = function(name) { return require(name); };
-    loader['d'] = function(name) { return self.load(name); };
-    loader['s'] = function(name) { return name; };
-    loader['j'] = function(name) { return config.evals[name](); };
+        self.load = function load(alias) {
+            var moduleDescriptor = config.graph[alias];
+            if (!moduleDescriptor) throw new Error('alias: ' + alias + ' not specified in configuration');
 
-    if(!config.singletons) config.singletons = {};
+            if (config.singletons[alias]) return config.singletons[alias]
 
-    self.load = function load(alias) {
-        var moduleDescriptor = config.graph[alias];
-        if (!moduleDescriptor) throw new Error('alias: ' + alias + ' not specified in configuration');
+            var dependencies = moduleDescriptor.deps.map(function(item) {
+                if (typeof item !== "string") return item;
+                var dependencyParts = item.split(':'),
+                dependencyType = dependencyParts[0],
+                dependencyAlias = dependencyParts[1];
+                if (!dependencyType) dependencyType = 'x';
 
-        if (config.singletons[alias]) return config.singletons[alias]
+                return loader[dependencyType](dependencyAlias);
+            }),
 
-        var dependencies = moduleDescriptor.deps.map(function(item) {
-            if (typeof item !== "string") return item;
-            var dependencyParts = item.split(':'),
-            dependencyType = dependencyParts[0],
-            dependencyAlias = dependencyParts[1];
-            if (!dependencyType) dependencyType = 'x';
+            path = moduleDescriptor.lookup ? moduleDescriptor.lookup : alias;
+            var loadedModule = require(prefixDir + '/' + path).apply(null, dependencies);
+            if(moduleDescriptor.singleton) config.singletons[alias] = loadedModule;
 
-            return loader[dependencyType](dependencyAlias);
-        }),
+            return loadedModule;
+        };
 
-        path = moduleDescriptor.lookup ? moduleDescriptor.lookup : alias;
-        var module = require(prefixDir + '/' + path).apply(null, dependencies);
-        if(moduleDescriptor.singleton) config.singletons[alias] = module;
-
-        return module;
-    };
-
-    return self;
+        return self;
+    }();
 };
 

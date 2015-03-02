@@ -30,7 +30,7 @@ module.exports = function(config) {
         }),
 
         path = moduleDescriptor.lookup ? moduleDescriptor.lookup : alias;
-        var module = require(process.cwd() + '/' + path).apply(null, dependencies);
+        var module = require(prefixDir + '/' + path).apply(null, dependencies);
         if(moduleDescriptor.singleton) config.singletons[alias] = module;
 
         return module;

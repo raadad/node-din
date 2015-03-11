@@ -1,10 +1,11 @@
 module.exports = function(config) {
     var Din = function() {
         var self = this,
-        prefixDir = config.baseDir ? config.baseDir : process.cwd(),
+            fs = require('fs'),
+            prefixDir = config.baseDir ? config.baseDir : process.cwd(),
 
 
-        loader = {};
+            loader = {};
         loader['x'] = function(name) { return require(name); };
         loader['n'] = function(name) { return require(name); };
         loader['d'] = function(name) { return self.load(name); };
@@ -13,6 +14,19 @@ module.exports = function(config) {
 
         if (!config.singletons) config.singletons = {};
 
+        // TODO: consider package.json entry point in this logic.
+        self.resolve = function(path) {
+            if (fs.existsSync(prefixDir + '/' + path)) {
+                return prefixDir + '/' + path;
+            }
+
+            if (fs.existsSync(prefixDir + '/' + path + '.js')) {
+                return prefixDir + '/' + path + '.js';
+            }
+
+            return path;
+        };
+
         self.load = function load(alias) {
             var moduleDescriptor = config.graph[alias];
             if (!moduleDescriptor) throw new Error('alias: ' + alias + ' not specified in configuration');
@@ -20,17 +34,18 @@ module.exports = function(config) {
             if (config.singletons[alias]) return config.singletons[alias];
 
             var dependencies = moduleDescriptor.deps.map(function(item) {
-                if (typeof item !== "string") return item;
-                var dependencyParts = item.split(':'),
-                dependencyType = dependencyParts[0],
-                dependencyAlias = dependencyParts[1];
-                if (!dependencyType) dependencyType = 'x';
+                    if (typeof item !== "string") return item;
+                    var dependencyParts = item.split(':'),
+                        dependencyType = dependencyParts[0],
+                        dependencyAlias = dependencyParts[1];
+                    if (!dependencyType) dependencyType = 'x';
 
-                return loader[dependencyType](dependencyAlias);
-            }),
+                    return loader[dependencyType](dependencyAlias);
+                }),
 
-            path = moduleDescriptor.lookup ? moduleDescriptor.lookup : alias,
-            loadedModule = require(prefixDir + '/' + path).apply(null, dependencies);
+                path = moduleDescriptor.lookup ? moduleDescriptor.lookup : alias,
+                moduleLocation = self.resolve(path),
+                loadedModule = require(moduleLocation).apply(null, dependencies);
 
             if (moduleDescriptor.singleton) config.singletons[alias] = loadedModule;
 

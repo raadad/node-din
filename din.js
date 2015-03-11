@@ -7,19 +7,20 @@ module.exports = function(config) {
         if (!config.singletons) config.singletons = {};
 
         // TODO: consider package.json entry point in this logic.
-        self.resolve = function(path, previousPath) {
-            var pre = previousPath ? previousPath : prefixDir;
+        // TODO: strip file name from parentModulePath
+        self.resolve = function(path, parentModulePath) {
+            var basePath = parentModulePath ? parentModulePath : prefixDir;
 
-            if (fs.existsSync(pre + '/' + path)) return prefixDir + '/' + path;
-            if (fs.existsSync(pre + '/' + path + '.js')) return prefixDir + '/' + path + '.js';
-            if (fs.existsSync(pre + '/node_modules/' + path )) return prefixDir + '/node_modules/' + path;
+            if (fs.existsSync(basePath + '/' + path)) return basePath + '/' + path;
+            if (fs.existsSync(basePath + '/' + path + '.js')) return basePath + '/' + path + '.js';
+            if (fs.existsSync(basePath + '/node_modules/' + path )) return basePath + '/node_modules/' + path;
 
-            if (previousPath) return self.resolve(path);
+            if (parentModulePath) return self.resolve(path);
 
             return path;
         };
 
-        self.load = function load(alias, previousPath) {
+        self.load = function load(alias, parentModulePath) {
             if (typeof alias !== "string") return alias;
             if (alias.indexOf('s:') !== -1) return alias.split(':')[1];
 
@@ -28,7 +29,7 @@ module.exports = function(config) {
             if (!moduleDescriptor) moduleDescriptor = {};
             if (!moduleDescriptor.lookup) moduleDescriptor.lookup = alias;
 
-            var moduleLocation = self.resolve(moduleDescriptor.lookup, previousPath),
+            var moduleLocation = self.resolve(moduleDescriptor.lookup, parentModulePath),
                 loadedModule = require(moduleLocation);
 
             if (moduleDescriptor.deps) {

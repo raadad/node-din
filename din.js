@@ -4,7 +4,7 @@ module.exports = function(config) {
             fs = require('fs'),
             prefixDir = config.baseDir ? config.baseDir : process.cwd();
 
-        if (!config.singletons) config.singletons = {};
+        if (!process._dinSingletons) process._dinSingletons = {};
 
         // TODO: consider package.json entry point in this logic.
         // TODO: strip file name from parentModulePaths
@@ -28,7 +28,7 @@ module.exports = function(config) {
             if (alias.indexOf('s:') !== -1) return alias.split(':')[1];
 
             var moduleDescriptor = config.graph[alias];
-            if (config.singletons[alias]) return config.singletons[alias];
+            if (process._dinSingletons[alias]) return process._dinSingletons[alias];
             if (!moduleDescriptor) moduleDescriptor = {};
             if (!moduleDescriptor.lookup) moduleDescriptor.lookup = alias;
 
@@ -41,7 +41,7 @@ module.exports = function(config) {
                     return self.load(item, parentModulePaths);
                 });
                 loadedModule = loadedModule.apply(null, dependencies);
-                if (moduleDescriptor.singleton) config.singletons[alias] = loadedModule;
+                if (moduleDescriptor.singleton) process._dinSingletons[alias] = loadedModule;
             }
 
             return loadedModule;

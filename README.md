@@ -1,16 +1,17 @@
 # Din
 Razor thin Dependency Injection for node.js
-
 ### Why?
 This library helps you achieve and enforce true inversion of control of your modules.
+
+When you are dealing with large code bases in node.js which is common place as small applications grow very large, the code
+base increasingly difficult to manage, update and test.
 
 Using require to load modules directly makes it difficult to control what dependencies your modules use and when it comes time for testing or swapping out implementations of dependencies, it becomes difficult without having to change the module internally or hack the require cache.
 
 This library aims to be as thin as possible as well as completley unobtrusive to the modules themselevs, as opposed to most DI libraries which require modules are written in a specific way or depend on a global variable such as 'define'.
 
 ### Usage
-Din is constructed with a config, which is used to specify what dependencies each module requires and how a module should be loaded, there are multiple ways to load a dependency, depending on the requirment.
-
+Din is constructed with a wiring file, which is used to specify what dependencies each module requires and how a module should be loaded, there are multiple ways to load a dependency, depending on the requirment.
 
 The following example shows how to load multiple dependencies in many supported usage scenarios.
 
@@ -29,21 +30,14 @@ module.exports = {
             'modulea' :{  // key used to load module
                 lookup:'lib/testModule',  //actual name of js file
                 deps:[ // array containing dependencies required to load module
-                    'n:console', // n denotes it is a normal module that can be required
-                    'j:computedDep', // j denotes a lookup in the evals object (shown below)
+                    console.log,  // injects the console.log function
                     function() {console.log('inlineFunctionDep'); // functions can be inlined as dependencies
                     's:stringDep', // s dentoes a string literal
                     123456, // numbers are passed straight through
-                    'd:libAnotherTestModule' // d denotes the loading of another module through the din library
+                    'libAnotherTestModule' // loads a module refernced in the wiring
                     }
                 ]
-            },
-            'lib/anotherTestModule' :{  // modules dont require lookup if their keys match an actual file
-                deps:['n:fs'] }
-        },
-        evals: {
-            'computedDep': function(name) { return require('fs').readFileSync; }
-            // will return a reference to readFileSync as a Dependency
+            }
         }
 };
 ```

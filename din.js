@@ -6,15 +6,13 @@ module.exports = function(config) {
 
         if (!process._dinSingletons) process._dinSingletons = {};
 
-        // TODO: consider package.json entry point in this logic.
-        // TODO: strip file name from parentModulePaths
-
         self.resolve = function(path, parentModulePaths) {
             var parentModulePathsCopy = parentModulePaths.map(function(item) { return item; }),
             basePath = (parentModulePaths && parentModulePaths.length) ? parentModulePathsCopy.pop() : prefixDir;
 
             if (fs.existsSync(basePath + '/' + path)) return basePath + '/' + path;
             if (fs.existsSync(basePath + '/' + path + '.js')) return basePath + '/' + path + '.js';
+            if (fs.existsSync(basePath + '/' + path + '.es6')) return basePath + '/' + path + '.es6';
             if (fs.existsSync(basePath + '/node_modules/' + path )) return basePath + '/node_modules/' + path;
 
             if (parentModulePaths.length) return self.resolve(path, parentModulePathsCopy);
@@ -37,7 +35,7 @@ module.exports = function(config) {
 
             if (moduleDescriptor.deps) {
                 parentModulePaths.push(moduleLocation);
-                dependencies = moduleDescriptor.deps.map(function(item) {
+                var dependencies = moduleDescriptor.deps.map(function(item) {
                     return self.load(item, parentModulePaths);
                 });
                 loadedModule = loadedModule.apply(null, dependencies);

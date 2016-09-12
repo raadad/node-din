@@ -22,25 +22,30 @@ module.exports = function(config) {
 
         self.load = function load(alias, parentModulePaths) {
             if (!parentModulePaths) parentModulePaths = [];
-            if (typeof alias !== "string") return alias;
-            if (alias.indexOf('s:') !== -1) return alias.split(':')[1];
+            if (typeof alias !== "string") return alias; //support for non lookup dependencies
+            if (alias.indexOf('s:') !== -1) return alias.split(':')[1]; // support for string based dependencies
 
-            var moduleDescriptor = config.graph[alias];
-            if(moduleDescriptor && moduleDescriptor.lookup && config.graph[moduleDescriptor.lookup]) return self.load(moduleDescriptor.lookup, parentModulePaths);
-            if (process._dinSingletons[alias]) return process._dinSingletons[alias];
-            if (!moduleDescriptor) moduleDescriptor = {};
-            if (!moduleDescriptor.lookup) moduleDescriptor.lookup = alias;
+            var moduleDescriptor = config.graph[alias]; // Load module from graph
 
-            var moduleLocation = self.resolve(moduleDescriptor.lookup, parentModulePaths),
-                loadedModule = require(moduleLocation);
+            if(moduleDescriptor && moduleDescriptor.lookup && config.graph[moduleDescriptor.lookup])
+                return self.load(moduleDescriptor.lookup, parentModulePaths); // recursivly lookup dependencies
+            if (process._dinSingletons[alias]) return process._dinSingletons[alias]; // support for singletons
+            if (!moduleDescriptor) moduleDescriptor = {}; // handle case where module is not defined in graph
 
+            if (moduleDescriptor.lookup) moduleDescriptor._lookup = moduleDescriptor.lookup; // lookup is used for two things, this is a work around to not make breaking API change
+            if (!moduleDescriptor._lookup) moduleDescriptor._lookup = alias;  // as above
+
+            var moduleLocation = self.resolve(moduleDescriptor._lookup, parentModulePaths), //find module
+                loadedModule = require(moduleLocation); // load module
+
+            //recursivly load dependencies for module
             if (moduleDescriptor.deps) {
                 parentModulePaths.push(moduleLocation);
                 var dependencies = moduleDescriptor.deps.map(function(item) {
                     return self.load(item, parentModulePaths);
                 });
-                loadedModule = loadedModule.apply(null, dependencies);
-                if (moduleDescriptor.singleton) process._dinSingletons[alias] = loadedModule;
+                loadedModule = loadedModule.apply(null, dependencies); // inject dependencies
+                if (moduleDescriptor.singleton) process._dinSingletons[alias] = loadedModule; // add to singleton store
             }
 
             return loadedModule;

@@ -26,6 +26,7 @@ module.exports = function(config) {
             if (alias.indexOf('s:') !== -1) return alias.split(':')[1];
 
             var moduleDescriptor = config.graph[alias];
+            if(moduleDescriptor && moduleDescriptor.lookup && config.graph[moduleDescriptor.lookup]) return self.load(moduleDescriptor.lookup, parentModulePaths);
             if (process._dinSingletons[alias]) return process._dinSingletons[alias];
             if (!moduleDescriptor) moduleDescriptor = {};
             if (!moduleDescriptor.lookup) moduleDescriptor.lookup = alias;

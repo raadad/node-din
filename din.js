@@ -6,6 +6,8 @@ module.exports = function(config) {
 
         if (!process._dinSingletons) process._dinSingletons = {};
 
+        self.config = config;
+
         self.resolve = function(path, parentModulePaths) {
             var parentModulePathsCopy = parentModulePaths.map(function(item) { return item; }),
             basePath = (parentModulePaths && parentModulePaths.length) ? parentModulePathsCopy.pop() : prefixDir;

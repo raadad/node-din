@@ -31,11 +31,11 @@ module.exports = {
                 lookup:'lib/testModule',  //actual name of js file
                 deps:[ // array containing dependencies required to load module
                     console.log,  // injects the console.log function
-                    function() {console.log('inlineFunctionDep'); // functions can be inlined as dependencies
+                    function() {console.log('inlineFunctionDep');}, // functions can be inlined as dependencies
                     's:stringDep', // s dentoes a string literal
                     123456, // numbers are passed straight through
-                    'libAnotherTestModule' // loads a module refernced in the wiring
-                    }
+                    'libAnotherTestModule', // loads a module refernced in the wiring
+                    '_din' // injects the instance of din to allow for modules to be loaded on demand
                 ]
             }
         }

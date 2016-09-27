@@ -24,6 +24,7 @@ module.exports = function(config) {
             if (!parentModulePaths) parentModulePaths = [];
             if (typeof alias !== "string") return alias; //support for non lookup dependencies
             if (alias.indexOf('s:') !== -1) return alias.split(':')[1]; // support for string based dependencies
+            if (alias === '_din') return self;
 
             var moduleDescriptor = config.graph[alias]; // Load module from graph
 

@@ -1,12 +1,12 @@
-module.exports = function(config) {
+module.exports = function(wiring) {
     var Din = function() {
         var self = this,
             fs = require('fs'),
-            prefixDir = config.baseDir ? config.baseDir : process.cwd();
+            prefixDir = wiring.baseDir ? wiring.baseDir : process.cwd();
 
         if (!process._dinSingletons) process._dinSingletons = {};
 
-        self.config = config;
+        self.wiring = wiring;
 
         self.resolve = function(path, parentModulePaths) {
             var parentModulePathsCopy = parentModulePaths.map(function(item) { return item; }),
@@ -23,14 +23,16 @@ module.exports = function(config) {
         };
 
         self.load = function load(alias, parentModulePaths) {
+            if (!parentModulePaths && wiring.dirs) parentModulePaths = wiring.dirs; 
             if (!parentModulePaths) parentModulePaths = [];
+
             if (typeof alias !== "string") return alias; //support for non lookup dependencies
             if (alias.indexOf('s:') !== -1) return alias.split(':')[1]; // support for string based dependencies
             if (alias === '_din') return self;
 
-            var moduleDescriptor = config.graph[alias]; // Load module from graph
+            var moduleDescriptor = wiring.graph[alias]; // Load module from graph
 
-            if(moduleDescriptor && moduleDescriptor.lookup && config.graph[moduleDescriptor.lookup])
+            if(moduleDescriptor && moduleDescriptor.lookup && wiring.graph[moduleDescriptor.lookup])
                 return self.load(moduleDescriptor.lookup, parentModulePaths); // recursivly lookup dependencies
             if (process._dinSingletons[alias]) return process._dinSingletons[alias]; // support for singletons
             if (!moduleDescriptor) moduleDescriptor = {}; // handle case where module is not defined in graph

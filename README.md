@@ -49,4 +49,3 @@ din = Din(appWiring),
 
 modulea = din.load('modulea');
 ```
-

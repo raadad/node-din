@@ -47,7 +47,9 @@ module.exports = function(wiring) {
         
             //recursivly load dependencies for module
             if (moduleDescriptor.deps) {
-                parentModulePaths.push(moduleLocation);
+                if(!parentModulePaths.some( a => (a == moduleLocation)) && !moduleLocation.split('.')[1] ) {
+                    parentModulePaths.push(moduleLocation);
+                }
                 var dependencies = moduleDescriptor.deps.map(function(item) {
                     return self.load(item, parentModulePaths);
                 });
@@ -55,7 +57,7 @@ module.exports = function(wiring) {
                 if(loadedModule.default) loadedModule = loadedModule.default;
 
                 loadedModule = loadedModule.apply(null, dependencies); // inject dependencies
-                
+
                 if (moduleDescriptor.singleton) process._dinSingletons[alias] = loadedModule; // add to singleton store
                 if(!loadedModule) throw new Error("Module did not return an instance "+moduleLocation);
                 
